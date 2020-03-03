@@ -33,8 +33,10 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "babel-plugin-styled-components": "^1.10.7",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "react-icons": "^3.9.0",
     "react-router-dom": "^5.1.2",
     "styled-components": "^5.0.1"
   }
