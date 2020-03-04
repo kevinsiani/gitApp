@@ -42,6 +42,11 @@ export default class Main extends Component {
 
     try {
       const { newRepo, repositories } = this.state;
+
+      if (repositories[0].includes({ name: newRepo })) {
+        throw new Error('Repositório existente');
+      }
+
       const response = await api.get(`/repos/${newRepo}`);
       const data = {
         name: response.data.full_name,
@@ -83,12 +88,12 @@ export default class Main extends Component {
             {loading ? (
               <FaSpinner color="#fff" size={14} />
             ) : (
-                <FaPlus color="#fff" size={14} />
-              )}
+              <FaPlus color="#fff" size={14} />
+            )}
           </SubmitButton>
         </Form>
 
-        {searchError && <Message>Erro ao encontrar esse repositório.</Message>}
+        {searchError && <Message>Erro ao recuperar repositório.</Message>}
 
         <List>
           {repositories.map(repository => (
