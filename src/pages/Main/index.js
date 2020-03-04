@@ -5,13 +5,14 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, Message } from './styles';
 
 export default class Main extends Component {
   state = {
     newRepo: '',
     repositories: [],
     loading: false,
+    searchError: false,
   };
 
   // Carrega os dados do localStorage
@@ -37,26 +38,31 @@ export default class Main extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
-
     this.setState({ loading: true });
 
-    const { newRepo, repositories } = this.state;
+    try {
+      const { newRepo, repositories } = this.state;
+      const response = await api.get(`/repos/${newRepo}`);
+      const data = {
+        name: response.data.full_name,
+      };
 
-    const response = await api.get(`/repos/${newRepo}`);
-
-    const data = {
-      name: response.data.full_name,
-    };
-
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        loading: false,
+        searchError: false,
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        searchError: true,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, searchError } = this.state;
 
     return (
       <Container>
@@ -65,7 +71,7 @@ export default class Main extends Component {
           Repositórios
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} searchError={searchError}>
           <input
             type="text"
             placeholder="Adicionar repositório"
@@ -77,10 +83,12 @@ export default class Main extends Component {
             {loading ? (
               <FaSpinner color="#fff" size={14} />
             ) : (
-              <FaPlus color="#fff" size={14} />
-            )}
+                <FaPlus color="#fff" size={14} />
+              )}
           </SubmitButton>
         </Form>
+
+        {searchError && <Message>Erro ao encontrar esse repositório.</Message>}
 
         <List>
           {repositories.map(repository => (
